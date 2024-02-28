@@ -1,7 +1,3 @@
-# Pelin alkuun kysely pelaajalle haluaako hän aloittaa uuden pelin
-# vai katsoa aimepien pelien pistemääriä.
-
-
 import mysql.connector
 
 yhteys = mysql.connector.connect(
@@ -9,7 +5,7 @@ yhteys = mysql.connector.connect(
     port=3306,
     database="demoprojekti",
     user="root",
-    password="OmaSalasana",
+    password="omasalasana",
     autocommit=True
 )
 
@@ -25,7 +21,6 @@ def player_choice():
             print("Please choose 1 or 2.")
 
 choice = player_choice()
-
 
 
 # Funktio joka hakee pistetiedot tietokannasta, jos valinta on 2
@@ -47,12 +42,17 @@ if choice == "2":
                 print(f"Aircraft: {result[2]}")
                 print(f"Score: {result[3]}")
                 print()     #Tyhjä rivi erottamaan eri pelaajien tulokset toisistaan
+            return True
         else:
             print("No scores saved.")
+            return False
 
 
     scores = get_scores()
-    print_scores(scores)
+    if print_scores(scores):
+        # Tulosten näyttämisen jälkeen käyttäjää pyydetään painamaan 1, pelin aloittamiseksi
+        if input("Press (1) to start a new game ") == "1":
+            print("New adventure begins!") # pelin aloitus
 
 # Jos valinta on 1, peli alkaa
 elif choice == "1":
