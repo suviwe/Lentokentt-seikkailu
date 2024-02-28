@@ -5,55 +5,46 @@ yhteys = mysql.connector.connect(
     port=3306,
     database="demoprojekti",
     user="root",
-    password="omasalasana",
+    password="K1ss4tjaS11lit",
     autocommit=True
 )
 
-
 # Funktio, joka kysyy pelaajalta, haluaako hän aloittaa uuden pelin vai katsoa pisteet
-
 def player_choice():
     while True:
         choice = input("Do you want to start a new game (1) or see player scores (2)? ")
         if choice in ["1", "2"]:
-            return choice
+            return choice   # Varmistetaan, että pelaaja voi valita vain 1 tai 2
         else:
-            print("Please choose 1 or 2.")
+            print("Please choose 1 or 2.")  # Tulostetaan virhesanoma jos valinta joku muu
 
-choice = player_choice()
+# Funktio hakee pistetiedot tietokannasta
+def get_scores():
+    sql = "SELECT * FROM player_scores"
+    cursor = yhteys.cursor()
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    return results
 
+# Funktio, joka tulostaa pisteet ja kysyy pelaajalta, haluaako hän aloittaa uuden pelin tai lopettaa ohjelman
+def print_scores_and_ask_for_new_game(results):
+    if results:
+        print("Player scores: ")
+        for result in results:
+            print(f"Username: {result[1]}")
+            print(f"Aircraft: {result[2]}")
+            print(f"Score: {result[3]}")
+            print()  # Tyhjä rivi erottamaan eri pelaajien tulokset toisistaan
+        if input("Press (1) to start a new game or press enter to quit ") == "1":
+            print("New adventure begins!")  # pelin aloitus
+    else:
+        print("No scores saved.")
 
-# Funktio joka hakee pistetiedot tietokannasta, jos valinta on 2
+choice = player_choice() # Kutsutaan player_choice funktiota pelaajan valinnan mukaan
+
+# Jos valinta 2 kutsutaan get_scores ja print_scores_and_ask_for_new_game funktioita
 if choice == "2":
-    def get_scores():
-        sql = "select * from player_scores"
-        cursor = yhteys.cursor()
-        cursor.execute(sql)
-        results = cursor.fetchall()
-        return results
-
-    # Funktio, joka tulostaa pisteet
-    def print_scores(results):
-        # Tarkistetaan onko tietoja tallennettu
-        if results:
-            print("Player scores: ")
-            for result in results:
-                print(f"Username: {result[1]}")
-                print(f"Aircraft: {result[2]}")
-                print(f"Score: {result[3]}")
-                print()     #Tyhjä rivi erottamaan eri pelaajien tulokset toisistaan
-            return True
-        else:
-            print("No scores saved.")
-            return False
-
-
     scores = get_scores()
-    if print_scores(scores):
-        # Tulosten näyttämisen jälkeen käyttäjää pyydetään painamaan 1, pelin aloittamiseksi
-        if input("Press (1) to start a new game ") == "1":
-            print("New adventure begins!") # pelin aloitus
-
-# Jos valinta on 1, peli alkaa
-elif choice == "1":
-    print("New adventure begins!") # tähän pelin aloitus
+    print_scores_and_ask_for_new_game(scores)
+else:
+    print("New adventure begins!")  # pelin aloitus
