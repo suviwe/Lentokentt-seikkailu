@@ -1,5 +1,5 @@
 # Pelin alkuun kysely pelaajalle haluaako hän aloittaa uuden pelin
-# vai katsoa aimepien pelien pistemääriä
+# vai katsoa aimepien pelien pistemääriä.
 
 
 import mysql.connector
