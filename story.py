@@ -1,3 +1,7 @@
+
+#Pelin aloitus tarina
+
+
 screen_name = input("Hi there, what is your name?")
 airplane_name = input("Hi " + screen_name + ", now you can choose name for your airplane, what would you like to call it?")
 
