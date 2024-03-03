@@ -7,9 +7,9 @@ import keyboard
 yhteys = mysql.connector.connect(
          host='127.0.0.1',
          port=3306,
-         database='lentokenttäpeli',
-         user='root',
-         password='ulluas3156',
+         database='database',
+         user='user',
+         password='pass',
          autocommit=True
          )
 
