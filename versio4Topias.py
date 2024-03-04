@@ -7,9 +7,9 @@ import keyboard
 yhteys = mysql.connector.connect(
          host='127.0.0.1',
          port=3306,
-         database='database',
-         user='user',
-         password='pass',
+         database='lentokenttäpeli',
+         user='root',
+         password='ulluas3156',
          autocommit=True
          )
 
@@ -83,6 +83,7 @@ def print_welcome_message(airplane_name):
 
 # Main game loop
 while True:
+
     screen_name, airplane_name, battery, points, visited_airports = initialize_game()
     print_welcome_message(airplane_name)
 
@@ -101,13 +102,13 @@ while True:
         # Näytä pelaajalle kolme vaihtoehtoa ja pyydä pelaajaa valitsemaan yksi niistä
         print("Now you have to choose your next location where you want to go:")
         print("Here are your options:")
-        print("1. Small airport, from this airport you will get 1 point:", nearest_small_airport[0][2], ",", nearest_small_airport[0][6], ", Distance:", nearest_small_airport[1], "km")
-        print("2. Medium airport, from this airport you will get 3 points:", nearest_medium_airport[0][2], ",", nearest_medium_airport[0][6], ", Distance:", nearest_medium_airport[1], "km")
-        print("3. Large airport, from this airport you will get 5 points:", nearest_large_airport[0][2], ",", nearest_large_airport[0][6], ", Distance:", nearest_large_airport[1], "km")
+        print(f"1. Small airport, from this airport you will get 1 point: {nearest_small_airport[0][2]}, {nearest_small_airport[0][6]}, Distance: {nearest_small_airport[1]:.2f} km")
+        print(f"2. Medium airport, from this airport you will get 3 points: {nearest_medium_airport[0][2]}, {nearest_medium_airport[0][6]}, Distance: {nearest_medium_airport[1]:.2f} km")
+        print(f"3. Large airport, from this airport you will get 5 points: {nearest_large_airport[0][2]}, {nearest_large_airport[0][6]}, Distance: {nearest_large_airport[1]:.2f} km")
 
         choice = ''
-        while choice not in ['1', '2', '3']:
-            choice = input("Please choose an option (1, 2, or 3): ")
+        while choice not in ['1', '2', '3', 'e']:
+            choice = input("Please choose an option (1, 2, 3 or E to exit): ").lower()
             if choice == '1':
                 next_airport = nearest_small_airport
                 points += 1
@@ -117,8 +118,13 @@ while True:
             elif choice == '3':
                 next_airport = nearest_large_airport
                 points += 5
+            elif choice == 'e':
+                print("Thank you for playing!")
+                break
             else:
-                print("Invalid choice. Please choose 1, 2, or 3.")
+                print("Invalid choice. Please choose 1, 2, 3 or E.")
+        if choice == 'e':
+            break
 
         visited_airports.append(next_airport[0][1])
 
@@ -140,16 +146,12 @@ while True:
             break
 
         # Tulosta jäljellä oleva akun tila ja lentomatka
-        print(f"Your airplane's battery has now {battery} km left.")
+        print(f"Your airplane's battery has now {battery:.2f} km left.")
         # Tulosta pelaajan nykyinen pistemäärä
         print(f"You have now {points} points.\n")
 
-        # Jos esc-nappia painetaan peli loppuu
-        if keyboard.is_pressed('esc'):
-            print("Starting a new game...")
-            break
-    # pelin loputtua kysyy haluuako pelaaja aloittaa pelin uudelleen
+
     play_again = input("Do you want to play again? (yes/no): ").strip().lower()
     if play_again != 'yes':
-        print("Thank you for playing the game!")
+        print("Exiting the game")
         break
