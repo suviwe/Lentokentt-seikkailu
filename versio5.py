@@ -5,9 +5,9 @@ from geopy.distance import geodesic
 yhteys = mysql.connector.connect(
     host="localhost",
     port=3306,
-    database="demoprojekti",
-    user="root",
-    password="K1ss4tjaS11lit",
+    database="OmaTietokanta",
+    user="Käyttäjä",
+    password="Salasana",
     autocommit=True
 )
 
@@ -34,6 +34,12 @@ def save_player_score(screen_name, aircraft_name, final_location, score):
            "VALUES (%s, %s, %s, %s)")
     cursor = yhteys.cursor()
     cursor.execute(sql, (screen_name, aircraft_name, final_location, score))
+
+def save_initial_data(battery_left, location, current_score, screen_name, aircraft_name):
+    sql = ("INSERT INTO game (battery_left, location, current_score, screen_name, aircraft_name) "
+           "VALUES (%s, %s, %s, %s, %s)")
+    cursor = yhteys.cursor()
+    cursor.execute(sql, (battery_left, location, current_score, screen_name, aircraft_name))
 
 # Funktio, joka tulostaa pisteet ja kysyy pelaajalta, haluaako hän aloittaa uuden pelin tai lopettaa ohjelman
 def print_scores_and_ask_for_new_game(results):
@@ -211,6 +217,10 @@ if battery <= 0:
     input()
     exit()
 
+# Tallennetaan pelitiedot ensimmäisen valinnan jälkeen
+current_weather = randomize_weather(distance)
+save_initial_data(2000 - battery, next_airport[0][2], points, screen_name, airplane_name)
+
 # Tulosta jäljellä oleva akun tila ja lentomatka
 print("Your airplane's battery has now " + str(battery) + "km left.")
 
@@ -256,6 +266,9 @@ while battery > 0:
     distance = next_airport[1]
     battery -= randomize_weather(distance)
 
+
+
+
     # Tarkista, onko pelaajan valitsema kohde sellaisen matkan päässä, jonne akku riittää
     if battery < 0:
         print("Your battery became empty on the way. You didn't reach your selected destination.")
@@ -276,7 +289,7 @@ while battery > 0:
 
         print("Your airplane's battery is empty. The game has ended.") # Jos lentokenttää ei enää saavutettu
         print("Your total points are: " + str(points))
-        # Tallenna pelaajan pisteet tietokantaan pelin lopussa
+        # Tallenna pelaajan pisteet tietokantaan ennen pelin sulkemista
         save_player_score(screen_name, airplane_name, points, final_location)
 
         print("Thank you for playing the game!")
