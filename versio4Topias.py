@@ -87,13 +87,15 @@ while True:
     screen_name, airplane_name, battery, points, visited_airports = initialize_game()
     print_welcome_message(airplane_name)
 
-    while battery > 0:
-        #kutsuu funktion random_airports
-        airports = random_airport()
-        random_airport_result = random.choice(airports) #funktio random.choice valitsee satunnaisesti yhden lentokenttätiedon airports-listalta
-        visited_airports.append(random_airport_result[1]) #valittu lentokenttä tallennetaan muuttujaan rnadom_airport_result
+    # kutsuu funktion random_airports
+    airports = random_airport()
+    random_airport_result = random.choice(
+        airports)  # funktio random.choice valitsee satunnaisesti yhden lentokenttätiedon airports-listalta
+    visited_airports.append(
+        random_airport_result[1])  # valittu lentokenttä tallennetaan muuttujaan rnadom_airport_result
 
-        print(f"You will start your game at the following airport: {random_airport_result[2]}, {random_airport_result[6]}")
+    print(f"You will start your game at the following airport: {random_airport_result[2]}, {random_airport_result[6]}")
+    while battery > 0:
 
         nearest_small_airport = nearest_airport(random_airport_result, airports, 'small_airport')
         nearest_medium_airport = nearest_airport(random_airport_result, airports, 'medium_airport')
