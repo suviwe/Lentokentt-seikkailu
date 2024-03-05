@@ -47,7 +47,7 @@ def nearest_airport(airport, airports, type):
 #Chooses a random weather effect from different weather conditions.
 #Takes distance to a next airport (parameter "gap").
 #Returns new distance (new_gap) after the weather effects.
-#this function is used to apply a multiplier to flying distance when reducing battery.
+#this function is used to apply a multiplier to flying distance when reducing battery
 def randomize_weather(gap):
     weather_list= ["clear_sky", "foggy", "rainy", "stormy"]
     result = random.choice(weather_list)
@@ -93,6 +93,7 @@ while True:
     airports = random_airport()
     random_airport_result = random.choice(
         airports)  # funktio random.choice valitsee satunnaisesti yhden lentokenttätiedon airports-listalta
+    # append the first-airport's ident to the visited-airport's list
     visited_airports.append(
         random_airport_result[1])  # valittu lentokenttä tallennetaan muuttujaan rnadom_airport_result
 
@@ -129,6 +130,36 @@ while True:
                 print("Invalid choice. Please choose 1, 2, 3 or E.")
         if choice == 'e':
             break
+        # append a next airport's ident to the visited_airports list.
+        visited_airports.append(next_airport[0][1])
+
+        print(f"You have chosen to fly to the following airport: {next_airport[0][2]}, {next_airport[0][6]}, Distance: {next_airport[1]} km")
+
+        distance = next_airport[1]
+        battery -= randomize_weather(distance)
+
+        if battery <= 0:
+            if next_airport[0][3] == "small_airport":
+                points -= 1
+            elif next_airport[0][3] == "medium_airport":
+                points -= 3
+            elif next_airport[0][3] == "large_airport":
+                points -= 5
+
+            print("Your airplane's battery is empty. The game has ended.")
+            print(f"Your total points are: {points}")
+            break
+
+        # Tulosta jäljellä oleva akun tila ja lentomatka
+        print(f"Your airplane's battery has now {battery:.2f} km left.")
+        # Tulosta pelaajan nykyinen pistemäärä
+        print(f"You have now {points} points.\n")
+
+
+    play_again = input("Type yes to continue or type anything else to quit.").strip().lower()
+    if play_again != 'yes':
+        print("Exiting the game")
+        break
 
         visited_airports.append(next_airport[0][1])
 
@@ -138,6 +169,7 @@ while True:
         battery -= randomize_weather(distance)
 
         if battery <= 0:
+            #reduce points when the player couldn't reach to the next airport.
             if next_airport[0][3] == "small_airport":
                 points -= 1
             elif next_airport[0][3] == "medium_airport":
