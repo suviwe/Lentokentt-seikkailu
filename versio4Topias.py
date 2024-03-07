@@ -1,17 +1,15 @@
 import mysql.connector
 import random
 from geopy.distance import geodesic
-import keyboard
-
 
 yhteys = mysql.connector.connect(
-         host='127.0.0.1',
-         port=3306,
-         database='lentokenttäpeli2',
-         user='root',
-         password='ulluas3156',
-         autocommit=True
-         )
+    host='127.0.0.1',
+    port=3306,
+    database='lentokenttäpeli2',
+    user='root',
+    password='ulluas3156',
+    autocommit=True
+)
 
 def player_choice():
     while True:
@@ -37,12 +35,12 @@ def save_player_score(screen_name, aircraft_name, final_location, score):
     cursor = yhteys.cursor()
     cursor.execute(sql, (screen_name, aircraft_name, final_location, score))
 
-
 # Jos pelaajan valinta 2: näytetään aiemmat tulokset/no scores-viesti jos tallennettuja tuloksia ei ole
-def print_scores_and_ask_for_new_game(results):
-    if results:
+def print_scores_and_ask_for_new_game():
+    scores = get_scores()
+    if scores:
         print("Player scores: ")
-        for result in results:
+        for result in scores:
             print(f"Username: {result[0]}")
             print(f"Aircraft: {result[1]}")
             print(f"Final location: {result[2]}")
@@ -51,26 +49,19 @@ def print_scores_and_ask_for_new_game(results):
     else:
         print("No scores saved.")
 
-    choice = input("Press (1) to start a new game or press enter to quit ")
+    choice = input("Press (1) to start a new game or press enter to quit: ")
     if choice == "":
         print("You closed the program.")
         exit()
     elif choice == "1":
         return True
     else:
-        print("Invalid choice. Press 1 or enter.")
-        return False
+        print("Exiting the program.")
+        exit()
 
-choice = player_choice()
-
-if choice == "2":
-    scores = get_scores()
-    if print_scores_and_ask_for_new_game(scores):
-        screen_name = input("Hi there, what is your name?")
-        airplane_name = input(f"Hi {screen_name}, now you can choose name for your airplane, what would you like to call it?")
-else:
-    screen_name = input("Hi there, what is your name?")
-    airplane_name = input(f"Hi {screen_name}, now you can choose name for your airplane, what would you like to call it?")
+# Ask for player's name and plane name
+screen_name = input("Hi there, what is your name? ")
+airplane_name = input(f"Hi {screen_name}, now you can choose a name for your airplane. What would you like to call it? ")
 
 #funktio hakee ja palauttaa tietokannasta Euroopassa olevat kentät, rajaten tulokset isoihin,keskikokoisiin ja pieniin.
 def random_airport():
@@ -123,12 +114,13 @@ def randomize_weather(gap):
         print(f"OH NO, The weather is stormy, so your plane will use 100% more battery.")
     return new_gap
 
+
 # Initialize the game
 def initialize_game():
-    return screen_name, airplane_name, 2000, 0, []
+    return 2000, 0, []
 
 # Welcome message
-def print_welcome_message(airplane_name):
+def print_welcome_message():
     print("*" * 37)
     print(f"{' Welcome ':^37}")
     print("*" * 37)
@@ -140,9 +132,18 @@ def print_welcome_message(airplane_name):
 
 # Main game loop
 while True:
+    battery, points, visited_airports = initialize_game()
+    choice = player_choice()
+    play_again = ""
 
-    screen_name, airplane_name, battery, points, visited_airports = initialize_game()
-    print_welcome_message(airplane_name)
+    if choice == "2":
+        print_scores_and_ask_for_new_game()
+
+    if choice == "2" or play_again == "yes":
+        screen_name = input("Hi there, what is your name? ")
+        airplane_name = input(f"Hi {screen_name}, now you can choose a name for your airplane. What would you like to call it? ")
+
+    print_welcome_message()
 
     # kutsuu funktion random_airports
     airports = random_airport()
@@ -215,8 +216,11 @@ while True:
         # Tulosta pelaajan nykyinen pistemäärä
         print(f"You have now {points} points.\n")
 
-
     play_again = input("Do you want to play again? (yes/no): ").strip().lower()
-    if play_again != 'yes':
-        print("Exiting the game")
+    if play_again == 'yes':
+        screen_name = input("Hi there, what is your name? ")
+        airplane_name = input(
+            f"Hi {screen_name}, now you can choose a name for your airplane. What would you like to call it? ")
+    else:
+        print("Goodbye!")
         break
