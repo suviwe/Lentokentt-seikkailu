@@ -59,9 +59,6 @@ def print_scores_and_ask_for_new_game():
         print("Exiting the program.")
         exit()
 
-# Ask for player's name and plane name
-screen_name = input("Hi there, what is your name? ")
-airplane_name = input(f"Hi {screen_name}, now you can choose a name for your airplane. What would you like to call it? ")
 
 #funktio hakee ja palauttaa tietokannasta Euroopassa olevat kentät, rajaten tulokset isoihin,keskikokoisiin ja pieniin.
 def random_airport():
@@ -134,14 +131,12 @@ def print_welcome_message():
 while True:
     battery, points, visited_airports = initialize_game()
     choice = player_choice()
-    play_again = ""
 
     if choice == "2":
         print_scores_and_ask_for_new_game()
 
-    if choice == "2" or play_again == "yes":
-        screen_name = input("Hi there, what is your name? ")
-        airplane_name = input(f"Hi {screen_name}, now you can choose a name for your airplane. What would you like to call it? ")
+    screen_name = input("Hi there, what is your name? ")
+    airplane_name = input(f"Hi {screen_name}, now you can choose a name for your airplane. What would you like to call it? ")
 
     print_welcome_message()
 
@@ -217,10 +212,6 @@ while True:
         print(f"You have now {points} points.\n")
 
     play_again = input("Do you want to play again? (yes/no): ").strip().lower()
-    if play_again == 'yes':
-        screen_name = input("Hi there, what is your name? ")
-        airplane_name = input(
-            f"Hi {screen_name}, now you can choose a name for your airplane. What would you like to call it? ")
-    else:
+    if play_again != 'yes':
         print("Goodbye!")
         break
