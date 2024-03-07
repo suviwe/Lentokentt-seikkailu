@@ -7,11 +7,70 @@ import keyboard
 yhteys = mysql.connector.connect(
          host='127.0.0.1',
          port=3306,
-         database='lentokenttäpeli',
+         database='lentokenttäpeli2',
          user='root',
          password='ulluas3156',
          autocommit=True
          )
+
+def player_choice():
+    while True:
+        choice = input("Do you want to start a new game (1) or see player scores (2)? ")
+        if choice in ["1", "2"]:
+            return choice
+        else:
+            print("Please choose 1 or 2.")
+
+# Haetaan tallennetut pistetiedot tietokannasta
+def get_scores():
+    sql = ("SELECT screen_name, aircraft_name, final_location, score "
+           "FROM player_scores ORDER BY score DESC LIMIT 3")
+    cursor = yhteys.cursor()
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    return results
+
+# Tallennetaan pelitulokset pelin lopussa
+def save_player_score(screen_name, aircraft_name, final_location, score):
+    sql = ("INSERT INTO player_scores (screen_name, aircraft_name, final_location, score) "
+           "VALUES (%s, %s, %s, %s)")
+    cursor = yhteys.cursor()
+    cursor.execute(sql, (screen_name, aircraft_name, final_location, score))
+
+
+# Jos pelaajan valinta 2: näytetään aiemmat tulokset/no scores-viesti jos tallennettuja tuloksia ei ole
+def print_scores_and_ask_for_new_game(results):
+    if results:
+        print("Player scores: ")
+        for result in results:
+            print(f"Username: {result[0]}")
+            print(f"Aircraft: {result[1]}")
+            print(f"Final location: {result[2]}")
+            print(f"Score: {result[3]}")
+            print()
+    else:
+        print("No scores saved.")
+
+    choice = input("Press (1) to start a new game or press enter to quit ")
+    if choice == "":
+        print("You closed the program.")
+        exit()
+    elif choice == "1":
+        return True
+    else:
+        print("Invalid choice. Press 1 or enter.")
+        return False
+
+choice = player_choice()
+
+if choice == "2":
+    scores = get_scores()
+    if print_scores_and_ask_for_new_game(scores):
+        screen_name = input("Hi there, what is your name?")
+        airplane_name = input(f"Hi {screen_name}, now you can choose name for your airplane, what would you like to call it?")
+else:
+    screen_name = input("Hi there, what is your name?")
+    airplane_name = input(f"Hi {screen_name}, now you can choose name for your airplane, what would you like to call it?")
 
 #funktio hakee ja palauttaa tietokannasta Euroopassa olevat kentät, rajaten tulokset isoihin,keskikokoisiin ja pieniin.
 def random_airport():
@@ -66,8 +125,6 @@ def randomize_weather(gap):
 
 # Initialize the game
 def initialize_game():
-    screen_name = input("Hi there, what is your name? ")
-    airplane_name = input(f"Hi {screen_name}, now you can choose a name for your airplane. What would you like to call it? ")
     return screen_name, airplane_name, 2000, 0, []
 
 # Welcome message
@@ -122,11 +179,9 @@ while True:
                 points += 5
             elif choice == 'e':
                 print("Thank you for playing!")
-                break
+                exit()
             else:
                 print("Invalid choice. Please choose 1, 2, 3 or E.")
-        if choice == 'e':
-            break
 
         visited_airports.append(next_airport[0][1])
 
@@ -134,6 +189,13 @@ while True:
 
         distance = next_airport[1]
         battery -= randomize_weather(distance)
+
+        if battery < 0:
+            print("Your battery became empty on the way. You didn't reach your selected destination.")
+            print("Returning to the previous airport.")
+            battery = 0
+        else:
+            final_location = next_airport[0][2]
 
         if battery <= 0:
             if next_airport[0][3] == "small_airport":
@@ -145,6 +207,7 @@ while True:
 
             print("Your airplane's battery is empty. The game has ended.")
             print(f"Your total points are: {points}")
+            save_player_score(screen_name, airplane_name, final_location, points)
             break
 
         # Tulosta jäljellä oleva akun tila ja lentomatka
