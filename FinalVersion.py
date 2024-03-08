@@ -5,9 +5,9 @@ from geopy.distance import geodesic
 yhteys = mysql.connector.connect(
     host='127.0.0.1',
     port=3306,
-    database='lentokenttäpeli2',
+    database='peliprojekti2',
     user='root',
-    password='password',
+    password='Mooimoipuipoi8181',
     autocommit=True
 )
 
@@ -92,14 +92,15 @@ def nearest_airport(airport, airports, type):
     return nearest_airport
 
 #Chooses a random weather effect from different weather conditions.
-#Takes distance to a next airport.
-#Returns new distance after the weather effects.
-def randomize_weather(gap):
+#Takes distance to a next airport (parameter "gap").
+#Returns new distance (new_gap) after the weather effects.
+#this function is used to apply a multiplier to flying distance when reducing battery
+def apply_weather_multiplier(gap):
     weather_list= ["clear_sky", "foggy", "rainy", "stormy"]
     result = random.choice(weather_list)
     if result == "clear_sky":
         new_gap = gap
-        print("The weather is clear. Keep on going, enjoy the trip!")
+        print("The weather is clear. Keep on going!")
     elif result == "foggy":
         new_gap = (gap * 1.25)
         print(f"The weather is a little foggy, so you used 25% more battery.")
@@ -108,7 +109,7 @@ def randomize_weather(gap):
         print(f"The weather at your destination is rainy, sorry to say but you used 50% more battery.")
     elif result == "stormy":
         new_gap = (gap * 2)
-        print(f"OH NO, The weather is stormy, so your plane will use 100% more battery.")
+        print(f"OH NO, The weather is stormy, so your plane used 100% more battery.")
     return new_gap
 
 
@@ -117,18 +118,19 @@ def initialize_game():
     return 2000, 0, []
 
 # Welcome message
-def print_welcome_message():
-    print("*" * 37)
-    print(f"{' Welcome ':^37}")
-    print("*" * 37)
+def print_welcome_message(name):
+    print("*" * 50)
+    print(f"{f' Welcome {screen_name}, to the flight adventure! ':^50}")
+    print("*" * 50)
     print(f"In this game, you start your journey with your plane {airplane_name} from a randomly selected European airport and choose your next destination from three nearby airports.\n"
           "You have a full battery at the beginning, which allows you to fly 2000km. "
-          "As you travel, you collect points, but remember that your battery consumes energy.\n"
+          "As you travel, you collect points, but remember that flying consumes battery.\n"
           "Additionally, there's a unique challenge – the current weather conditions at your destination will affect your battery's performance. Unfortunately, you have no control over the weather, so plan your flights wisely!\n"
           "The game ends when the battery is empty. Good luck on your journey and collect as many points as possible!\n")
 
 # Main game loop
 while True:
+    # visited airport's idents will be collected to this visited_airports_list.
     battery, points, visited_airports = initialize_game()
     choice = player_choice()
 
@@ -138,14 +140,14 @@ while True:
     screen_name = input("Hi there, what is your name? ")
     airplane_name = input(f"Hi {screen_name}, now you can choose a name for your airplane. What would you like to call it? ")
 
-    print_welcome_message()
+    print_welcome_message(screen_name)
 
     # kutsuu funktion random_airports
     airports = random_airport()
     random_airport_result = random.choice(
         airports)  # funktio random.choice valitsee satunnaisesti yhden lentokenttätiedon airports-listalta
     visited_airports.append(
-        random_airport_result[1])  # valittu lentokenttä tallennetaan muuttujaan rnadom_airport_result
+        random_airport_result[1])  # valittu lentokenttä tallennetaan muuttujaan random_airport_result
 
     print(f"You will start your game at the following airport: {random_airport_result[2]}, {random_airport_result[6]}")
     while battery > 0:
@@ -181,10 +183,10 @@ while True:
 
         visited_airports.append(next_airport[0][1])
 
-        print(f"You have chosen to fly to the following airport: {next_airport[0][2]}, {next_airport[0][6]}, Distance: {next_airport[1]} km")
+        print(f"You have chosen to fly to the following airport: {next_airport[0][2]}, {next_airport[0][6]}, Distance: {next_airport[1]:.2f} km")
 
         distance = next_airport[1]
-        battery -= randomize_weather(distance)
+        battery -= apply_weather_multiplier(distance)
 
         if battery < 0:
             print("Your battery became empty on the way. You didn't reach your selected destination.")
@@ -211,7 +213,8 @@ while True:
         # Tulosta pelaajan nykyinen pistemäärä
         print(f"You have now {points} points.\n")
 
-    play_again = input("Do you want to play again? (yes/no): ").strip().lower()
+    play_again = input("Type yes to continue or type anything else to quit.").strip().lower()
     if play_again != 'yes':
-        print("Goodbye!")
+        print("Thank you for playing the game!")
+        print("Hope we'll see you again soon!")
         break
