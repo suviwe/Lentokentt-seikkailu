@@ -5,9 +5,9 @@ from geopy.distance import geodesic
 yhteys = mysql.connector.connect(
     host='127.0.0.1',
     port=3306,
-    database='peliprojekti2',
+    database='lentokenttäpeli2',
     user='root',
-    password='Mooimoipuipoi8181',
+    password='password',
     autocommit=True
 )
 
