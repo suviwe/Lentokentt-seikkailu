@@ -1,0 +1,101 @@
+Muutokset alkuperäiseen tietokantaan:
+
+set foreign_key_checks = 0;
+
+drop table game
+drop table goal_reached
+drop table goal
+
+set foreign_key_checks = 1;
+
+
+
+create table player_scores(
+ID int primary key auto_increment,
+screen_name varchar(100)
+aircraft_name varchar(100),
+final_location varchar(100),
+score int
+);
+
+
+(alkuperäinen suunitelma, jossa tietokannassa olisi ollut myös game-taulu,
+johon olisi tallennettu pelin väliaikatietoja:
+
+create table game (
+ID int primary key auto_increment,
+battery_left int,
+current_score int,
+location varchar (40),
+screen_name varchar (100),
+PlayerID int 
+);     )
+
+
+
+
+
+Pelikoodin osiot, joissa hydöynnetään tietokantaa tietojen hakemiseen/tallentamiseen:
+
+
+# Hakee tietokannasta player_scores taulusta edellisten pelien tulokset
+ja näyttää pelaajalle 3 parasta tulosta.
+def get_scores():
+    sql = ("SELECT screen_name, aircraft_name, final_location, score "
+           "FROM player_scores ORDER BY score DESC LIMIT 3")
+    cursor = yhteys.cursor()
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    return results
+
+
+# Tallentaa pelin lopussa lopullisen pelitilanteen
+def save_player_score(screen_name, aircraft_name, final_location, score):
+    sql = ("INSERT INTO player_scores (screen_name, aircraft_name, final_location, score) "
+           "VALUES (%s, %s, %s, %s)")
+    cursor = yhteys.cursor()
+    cursor.execute(sql, (screen_name, aircraft_name, final_location, score))
+
+
+
+# Kutustaan funktiota pelin lopussa ennen ohjelman lopettamista
+save_player_score(screen_name, airplane_name, final_location, points)
+
+
+
+# Hakee tietokannasta airport- taulusta lentokenttien nimet, 
+tyypin, maakoodin, lentokenttien etäisyyksien laskemiseen tarvittaat tiedot 
+sekä country-taulusta
+maan, jossa lentokenttä sijaitsee. Lentokenttien tyyppi on rajttu niin
+että haetaan vain large_airport, small_airport ja medium_airport tyyppiin
+sopivat sekä ne lentokentät jotka sijaitsevat Euroopassa.
+
+def random_airport():
+    sql = (""" SELECT airport.iso_country, airport.ident, airport.name, airport.type, airport.latitude_deg, airport.longitude_deg, country.name
+FROM airport
+JOIN country ON airport.iso_country = country.iso_country
+WHERE airport.continent = 'EU' 
+AND airport.TYPE IN ('large_airport', 'medium_airport' , 'small_airport');""")
+    kursori = yhteys.cursor()
+    kursori.execute(sql)
+    airports = kursori.fetchall()
+    return airports
+
+
+
+
+
+
+# Jos olisin saanut tietojen välitallennuksen toimimaan, tämä olisi ollut funktio tietojen tallentamiseen game-tauluun:
+
+def save_initial_data(battery_left, location, current_score, screen_name, aircraft_name):
+    sql = ("INSERT INTO game (battery_left, location, current_score, screen_name, aircraft_name) "
+           "VALUES (%s, %s, %s, %s, %s)")
+    cursor = yhteys.cursor()
+    cursor.execute(sql, (battery_left, location, current_score, screen_name, aircraft_name))
+
+
+
+# Funktion kutsu sen jälkeen kun pelaaja on tehnyt ensimmäisen valinnan:
+
+save_initial_data(2000 - battery, next_airport[0][2], points, screen_name, airplane_name)
